@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
 from asyncpg import Pool
-from app.core.database import pg_pool
+from app.core import database 
 from app.models.schemas import ClassCreate, ClassResponse
 from typing import List
 
 router = APIRouter(prefix="/class", tags=["Class"])
 
 async def get_pool() -> Pool:
-    return pg_pool
+    return database.pool
 
 @router.post("/", response_model=ClassResponse, status_code=201)
 async def create_class(cls: ClassCreate, pool: Pool = Depends(get_pool)):

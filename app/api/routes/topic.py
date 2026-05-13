@@ -1,22 +1,29 @@
 from fastapi import APIRouter, HTTPException, Depends
 from asyncpg import Pool
-from app.core.database import pg_pool
+import asyncpg.exceptions
+from app.core import database
 from app.models.schemas import TopicCreate, TopicResponse
 from typing import List
 
 router = APIRouter(prefix="/topic", tags=["Topic"])
 
-async def get_pool():
-    return pg_pool
+async def get_pool() -> Pool:
+    return database.pool
 
 @router.post("/", response_model=TopicResponse, status_code=201)
 async def create_topic(t: TopicCreate, pool: Pool = Depends(get_pool)):
-    row = await pool.fetchrow("""
-        INSERT INTO topic (topic_num, topic_name, subject_id)
-        VALUES ($1, $2, $3)
-        RETURNING topic_id, topic_num, topic_name, subject_id, minio_url, mongo_id
-    """, t.topic_num, t.topic_name, t.subject_id)
-    return TopicResponse(**dict(row))
+    try:
+        row = await pool.fetchrow("""
+            INSERT INTO topic (topic_num, topic_name, subject_id)
+            VALUES ($1, $2, $3)
+            RETURNING topic_id, topic_num, topic_name, subject_id, minio_url, mongo_id
+        """, t.topic_num, t.topic_name, t.subject_id)
+        return TopicResponse(**dict(row))
+    except asyncpg.exceptions.ForeignKeyViolationError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"subject_id không tồn tại trong DB: {t.subject_id!r}. Hãy GET /api/subject/ hoặc POST /api/subject/ trước.",
+        )
 
 @router.get("/{topic_id}", response_model=TopicResponse)
 async def get_topic(topic_id: str, pool: Pool = Depends(get_pool)):

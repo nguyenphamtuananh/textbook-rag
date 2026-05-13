@@ -115,3 +115,16 @@ class ChunkKeywordResponse(BaseModel):
     mongo_id: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+# ---- Search Response ----
+class SearchResultItem(BaseModel):
+    id: str
+    name: str
+    type: str
+    parent_name: Optional[str] = None
+    parent_id: Optional[str] = None
+
+class SearchResponse(BaseModel):
+    items: List[SearchResultItem]
+    total: int
+    page: int
+    size: int

@@ -25,5 +25,7 @@ class Settings:
     MINIO_ROOT_USER: str = os.getenv("MINIO_ROOT_USER", "minioadmin")
     MINIO_ROOT_PASSWORD: str = os.getenv("MINIO_ROOT_PASSWORD", "minioadmin")
     MINIO_BUCKET: str = os.getenv("MINIO_BUCKET", "data-edu")
+    # Gemini API
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
 
 settings = Settings()

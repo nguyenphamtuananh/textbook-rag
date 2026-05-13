@@ -1,13 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends
 from asyncpg import Pool
-from app.core.database import pg_pool
+from app.core import database
 from app.models.schemas import ChunkCreate, ChunkResponse
 from typing import List
 
 router = APIRouter(prefix="/chunk", tags=["Chunk"])
 
-async def get_pool():
-    return pg_pool
+async def get_pool() -> Pool:
+    if database.pool is None:
+        raise HTTPException(status_code=503, detail="Database not ready")
+    return database.pool
 
 @router.post("/", response_model=ChunkResponse, status_code=201)
 async def create_chunk(c: ChunkCreate, pool: Pool = Depends(get_pool)):

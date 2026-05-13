@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
 from asyncpg import Pool
-from app.core.database import pg_pool
+from app.core import database
 from app.models.schemas import KeywordCreate, KeywordResponse
 from typing import List
 
 router = APIRouter(prefix="/keyword", tags=["Keyword"])
 
-async def get_pool():
-    return pg_pool
+async def get_pool() -> Pool:
+    return database.pool
 
 @router.post("/", response_model=KeywordResponse, status_code=201)
 async def create_keyword(kw: KeywordCreate, pool: Pool = Depends(get_pool)):

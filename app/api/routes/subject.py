@@ -1,14 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
 from asyncpg import Pool
-from app.core.database import pg_pool
+from app.core import database
 from app.models.schemas import SubjectCreate, SubjectResponse
 from typing import List
 
 router = APIRouter(prefix="/subject", tags=["Subject"])
 
-async def get_pool():
-    return pg_pool
-
+async def get_pool() -> Pool:
+    return database.pool
 @router.post("/", response_model=SubjectResponse, status_code=201)
 async def create_subject(sub: SubjectCreate, pool: Pool = Depends(get_pool)):
     query = """
